@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Events</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .event-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .event-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #0366d6;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="event-container">
+        <h1>GitHub Events</h1>
+        <div id="events"></div>
+    </div>
+
+    <script>
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString('en-US', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                timeZone: 'Asia/Kolkata',
+                hour12: true
+            });
+        }
+
+        function formatEventMessage(event) {
+            const timestamp = formatDate(event.timestamp);
+            if (event.event_type === 'push') {
+                return `${event.author} pushed to ${event.to_branch} on ${timestamp}`;
+            } else if (event.event_type === 'pull_request') {
+                return `${event.author} submitted a pull request from ${event.from_branch} to ${event.to_branch} on ${timestamp}`;
+            }
+            return '';
+        }
+
+        function updateEvents() {
+            fetch('/events')
+                .then(response => response.json())
+                .then(events => {
+                    const eventsDiv = document.getElementById('events');
+                    eventsDiv.innerHTML = events
+                        .map(event => `<div class="event-message">${formatEventMessage(event)}</div>`)
+                        .join('');
+                })
+                .catch(error => console.error('Error fetching events:', error));
+        }
+
+        // Initial load
+        updateEvents();
+
+        // Refresh every 15 seconds
+        setInterval(updateEvents, 15000);
+    </script>
+</body>
+</html> 
