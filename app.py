@@ -42,12 +42,24 @@ def webhook():
             'author': payload['pusher']['name'],
             'to_branch': payload['ref'].split('/')[-1]
         })
+
     elif event_type == 'pull_request':
-        event_data.update({
-            'author': payload['pull_request']['user']['login'],
-            'from_branch': payload['pull_request']['head']['ref'],
-            'to_branch': payload['pull_request']['base']['ref']
-        })
+        action = payload.get('action')
+        pr = payload.get('pull_request', {})
+
+        if action == 'closed' and pr.get('merged'):  # 👉 This is a merge
+            event_data['event_type'] = 'merge'
+            event_data.update({
+                'author': pr['user']['login'],
+                'from_branch': pr['head']['ref'],
+                'to_branch': pr['base']['ref']
+            })
+        else:
+            event_data.update({
+                'author': pr['user']['login'],
+                'from_branch': pr['head']['ref'],
+                'to_branch': pr['base']['ref']
+            })
 
     events_collection.insert_one(event_data)
     return jsonify({'status': 'success'}), 200
