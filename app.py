@@ -47,7 +47,7 @@ def webhook():
         action = payload.get('action')
         pr = payload.get('pull_request', {})
 
-        if action == 'closed' and pr.get('merged'):  # 👉 This is a merge
+        if action == 'closed' and pr.get('merged'):
             event_data['event_type'] = 'merge'
             event_data.update({
                 'author': pr['user']['login'],
