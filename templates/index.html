@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Events</title>
+
+    <!-- Basic CSS styles for layout and appearance -->
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,6 +30,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Main container where events will be displayed -->
+
     <div class="event-container">
         <h1>GitHub Events</h1>
         <div id="events"></div>
@@ -41,11 +47,12 @@
                 year: 'numeric',
                 hour: 'numeric',
                 minute: 'numeric',
-                timeZone: 'Asia/Kolkata',
+                timeZone: 'Asia/Kolkata',  // Convert the timestamp to a readable IST format (Asia/Kolkata)
                 hour12: true
             });
         }
-
+        
+        // Generate a readable message based on the event type
         function formatEventMessage(event) {
             const timestamp = formatDate(event.timestamp);
             if (event.event_type === 'push') {
@@ -55,14 +62,16 @@
             }else if (event.event_type === 'merge') {
                 return `${event.author} merged a pull request from ${event.from_branch} to ${event.to_branch} on ${timestamp}`;
             }
-            return '';
+            return '';   // In case of unknown event type
         }
 
+        // Fetch latest events from the backend and display them
         function updateEvents() {
-            fetch('/events')
+            fetch('/events')    // Call Flask backend route
                 .then(response => response.json())
                 .then(events => {
                     const eventsDiv = document.getElementById('events');
+                    // Generate HTML for each event and display
                     eventsDiv.innerHTML = events
                         .map(event => `<div class="event-message">${formatEventMessage(event)}</div>`)
                         .join('');
